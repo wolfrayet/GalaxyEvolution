@@ -1,20 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.special as sc
+import scipy.integrate as integrate
+plt.rc('font', size=14)
+plt.rc('xtick', labelsize=10)
+plt.rc('ytick', labelsize=10)
 
-plt.rc('font', size=16)
-plt.rc('xtick', labelsize=12)
-plt.rc('ytick', labelsize=12)
+def phi_L(x,a):
+    return x**a*np.exp(-x)
 
 alpha = [-0.5, -1.0, -1.5]
-
-x = np.linspace(0.001,8,num=100)
+x = np.logspace(-2.0,1.0,num=100)
 for a in alpha:
-    L_CDF = sc.gammainc(a+2,x)
-    plt.plot(x, L_CDF, label=r'$\alpha$={:.1f}'.format(a))
+    phi = 1./integrate.quad(phi_L, 1e-3, np.inf, args=(a))[0]
+    L_CDF = phi_L(x,a)*x*phi
+    plt.plot(np.log10(x), np.log10(L_CDF), \
+            label=r'$\alpha$={:.1f}'.format(a))
 
 plt.legend()
 plt.grid()
-plt.xlabel('$L / L^*$')
-plt.ylabel('$L_{tot}(<L) / L_{tot}$')
+plt.xlabel('$log_{10}\,L\,/\,L^{*}$')
+plt.ylabel('$log_{10}\,\phi(L) (L/L^{*})$')
 plt.savefig('LF.pdf')
